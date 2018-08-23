@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
@@ -16,12 +16,20 @@
         android:scrollbars="vertical" />
 
 
-    <TextView
-        android:id="@+id/empty_view"
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/empty_view_animation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="No Data"
-        android:visibility="gone" />
+        android:layout_height="match_parent"
+        app:lottie_rawRes="@raw/empty_list"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
+
+    <!--<TextView-->
+        <!--android:id="@+id/empty_view"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:gravity="center"-->
+        <!--android:text="No Data"-->
+        <!--android:visibility="gone" />-->
 
 </android.support.constraint.ConstraintLayout>

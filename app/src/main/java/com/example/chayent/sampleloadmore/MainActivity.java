@@ -8,6 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieDrawable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +19,12 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.empty_view)
-    TextView emptyView;
+//    @BindView(R.id.empty_view)
+//    TextView emptyView;
     @BindView(R.id.my_recycler_view)
     RecyclerView recyclerView;
+    @BindView(R.id.empty_view_animation)
+    LottieAnimationView emptyAnimationView;
 
     private DataAdapter mAdapter;
     private List<Student> mStudentList = new ArrayList<>();
@@ -42,10 +47,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (mStudentList.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
-            emptyView.setVisibility(View.VISIBLE);
+//            emptyView.setVisibility(View.VISIBLE);
+            emptyAnimationView.setVisibility(View.VISIBLE);
+            emptyAnimationView.setRepeatCount(LottieDrawable.INFINITE);
+            emptyAnimationView.playAnimation();
         } else {
             recyclerView.setVisibility(View.VISIBLE);
-            emptyView.setVisibility(View.GONE);
+//            emptyView.setVisibility(View.GONE);
+            emptyAnimationView.setVisibility(View.GONE);
         }
 
         setLoadListener();
@@ -53,11 +62,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadData() {
         for (int i = 1; i <= 10; i++) {
-            mStudentList.add(new Student("Student " + i, "student" + i + "@gmail.com"));
+            mStudentList.add(new Student("Test" + i, "test id" + i));
         }
     }
 
-    private void setLoadListener(){
+    private void setLoadListener() {
         mAdapter.setOnLoadMoreListener(() -> {
             mStudentList.add(null);
             mAdapter.notifyItemInserted(mStudentList.size() - 1);
@@ -68,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 int start = mStudentList.size();
                 int end = start + 10;
                 for (int i = start + 1; i <= end; i++) {
-                    mStudentList.add(new Student("Student " + i, "student" + i + "@gmail.com"));
+                    mStudentList.add(new Student("Test" + i, "test id" + i));
                 }
                 mAdapter.notifyItemInserted(mStudentList.size());
                 mAdapter.setLoaded();
