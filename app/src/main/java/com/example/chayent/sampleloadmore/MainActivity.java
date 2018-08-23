@@ -11,42 +11,41 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
 
-    private TextView tvEmptyView;
-    private RecyclerView mRecyclerView;
+    @BindView(R.id.empty_view)
+    TextView emptyView;
+    @BindView(R.id.my_recycler_view)
+    RecyclerView recyclerView;
+
     private DataAdapter mAdapter;
-    private LinearLayoutManager mLayoutManager;
-
-    private List<Student> studentList;
-
-    protected Handler handler;
+    private List<Student> mStudentList = new ArrayList<>();
+    protected Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        tvEmptyView = findViewById(R.id.empty_view);
-        mRecyclerView = findViewById(R.id.my_recycler_view);
-        studentList = new ArrayList<>();
-        handler = new Handler();
+        ButterKnife.bind(this);
 
         loadData();
 
-        mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new DataAdapter(studentList, mRecyclerView);
-        mRecyclerView.setAdapter(mAdapter);
+        mAdapter = new DataAdapter(mStudentList, recyclerView);
+        recyclerView.setAdapter(mAdapter);
 
-        if (studentList.isEmpty()) {
-            mRecyclerView.setVisibility(View.GONE);
-            tvEmptyView.setVisibility(View.VISIBLE);
+        if (mStudentList.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
         } else {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            tvEmptyView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
         }
 
         setLoadListener();
@@ -54,32 +53,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadData() {
         for (int i = 1; i <= 10; i++) {
-            studentList.add(new Student("Student " + i, "student" + i + "@gmail.com"));
+            mStudentList.add(new Student("Student " + i, "student" + i + "@gmail.com"));
         }
     }
 
     private void setLoadListener(){
-        mAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                studentList.add(null);
-                mAdapter.notifyItemInserted(studentList.size() - 1);
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        studentList.remove(studentList.size() - 1);
-                        mAdapter.notifyItemRemoved(studentList.size());
+        mAdapter.setOnLoadMoreListener(() -> {
+            mStudentList.add(null);
+            mAdapter.notifyItemInserted(mStudentList.size() - 1);
+            handler.postDelayed(() -> {
+                mStudentList.remove(mStudentList.size() - 1);
+                mAdapter.notifyItemRemoved(mStudentList.size());
 
-                        int start = studentList.size();
-                        int end = start + 10;
-                        for (int i = start + 1; i <= end; i++) {
-                            studentList.add(new Student("Student " + i, "student" + i + "@gmail.com"));
-                        }
-                        mAdapter.notifyItemInserted(studentList.size());
-                        mAdapter.setLoaded();
-                    }
-                }, 3000);
-            }
+                int start = mStudentList.size();
+                int end = start + 10;
+                for (int i = start + 1; i <= end; i++) {
+                    mStudentList.add(new Student("Student " + i, "student" + i + "@gmail.com"));
+                }
+                mAdapter.notifyItemInserted(mStudentList.size());
+                mAdapter.setLoaded();
+            }, 3000);
         });
     }
 }

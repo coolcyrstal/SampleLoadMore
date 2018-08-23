@@ -1,6 +1,5 @@
 package com.example.chayent.sampleloadmore;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +12,6 @@ import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
-import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -26,7 +24,7 @@ import java.util.List;
 public class DataAdapter extends RecyclerView.Adapter {
 
     private final int VIEW_ITEM = 1;
-    private final int VIEW_PROG = 0;
+    private final int VIEW_PROGRESS = 0;
 
     private List<Student> studentList;
 
@@ -34,16 +32,14 @@ public class DataAdapter extends RecyclerView.Adapter {
     private int lastVisibleItem, totalItemCount;
     private boolean loading;
     private OnLoadMoreListener onLoadMoreListener;
-    private Context mContext;
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder;
-        mContext = parent.getContext();
         if (viewType == VIEW_ITEM) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
-            viewHolder = new StudentViewHolder(v);
+            viewHolder = new CardViewHolder(v);
         } else {
 //            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.progressbar, parent, false);
 //            viewHolder = new ProgressViewHolder(v);
@@ -55,14 +51,14 @@ public class DataAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof StudentViewHolder) {
+        if (holder instanceof CardViewHolder) {
             Student singleStudent = studentList.get(position);
-            ((StudentViewHolder) holder).tvName.setText(singleStudent.getName());
-            ((StudentViewHolder) holder).tvEmailId.setText(singleStudent.getEmailId());
-            ((StudentViewHolder) holder).student = singleStudent;
+            ((CardViewHolder) holder).tvName.setText(singleStudent.getName());
+            ((CardViewHolder) holder).tvEmailId.setText(singleStudent.getEmailId());
+            ((CardViewHolder) holder).student = singleStudent;
         } else {
-            ((AnimationViewHolder)holder).animationView.setRepeatCount(LottieDrawable.INFINITE);
-            ((AnimationViewHolder)holder).animationView.playAnimation();
+            ((AnimationViewHolder) holder).animationView.setRepeatCount(LottieDrawable.INFINITE);
+            ((AnimationViewHolder) holder).animationView.playAnimation();
 //            ((ProgressViewHolder) holder).progressBar.setIndeterminate(true);
         }
     }
@@ -74,7 +70,7 @@ public class DataAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        return studentList.get(position) != null ? VIEW_ITEM : VIEW_PROG;
+        return studentList.get(position) != null ? VIEW_ITEM : VIEW_PROGRESS;
     }
 
     public void setLoaded() {
@@ -107,24 +103,19 @@ public class DataAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public static class StudentViewHolder extends RecyclerView.ViewHolder {
+    public static class CardViewHolder extends RecyclerView.ViewHolder {
         TextView tvName;
         TextView tvEmailId;
         Student student;
 
-        StudentViewHolder(View itemView) {
+        CardViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
             tvEmailId = itemView.findViewById(R.id.tvEmailId);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(v.getContext(),
-                            "OnClick :" + student.getName() + " \n " + student.getEmailId(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+            itemView.setOnClickListener(v -> Toast.makeText(v.getContext(),
+                    "OnClick :" + student.getName() + " \n " + student.getEmailId(),
+                    Toast.LENGTH_SHORT).show());
         }
     }
 
