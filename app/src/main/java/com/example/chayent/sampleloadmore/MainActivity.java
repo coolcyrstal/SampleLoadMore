@@ -1,9 +1,7 @@
 package com.example.chayent.sampleloadmore;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.recycler_view_refresh_layout)
-//    SwipeRefreshLayout swipeRefreshLayout;
-            PtrClassicFrameLayout swipeRefreshLayout;
+    PtrClassicFrameLayout animationRefreshLayout;
+    //    SwipeRefreshLayout animationRefreshLayout;
     @BindView(R.id.empty_view_animation)
     LottieAnimationView emptyAnimationView;
 
@@ -47,30 +45,29 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        loadData();
-
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
-//        recyclerView.scrollToPosition(1);
 
+        loadData();
         mAdapter = new DataAdapter(mStudentList, recyclerView);
         recyclerView.setAdapter(mAdapter);
 
+        checkEmptyData();
+        setLoadListener();
+        setSwipeRefreshListener();
+    }
+
+    private void checkEmptyData() {
         if (mStudentList.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
-//            emptyView.setVisibility(View.VISIBLE);
             emptyAnimationView.setVisibility(View.VISIBLE);
             emptyAnimationView.setRepeatCount(LottieDrawable.INFINITE);
             emptyAnimationView.playAnimation();
         } else {
             recyclerView.setVisibility(View.VISIBLE);
-//            emptyView.setVisibility(View.GONE);
             emptyAnimationView.setVisibility(View.GONE);
         }
-
-        setLoadListener();
-        setSwipeRefreshListener();
     }
 
     private void loadData() {
@@ -115,34 +112,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setSwipeRefreshListener() {
-//        swipeRefreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
-//        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//        animationRefreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
+//        animationRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 //            @Override
 //            public void onRefresh() {
-//                swipeRefreshLayout.canChildScrollUp();
+//                animationRefreshLayout.canChildScrollUp();
 //                refreshItems();
 //            }
 //        });
-        swipeRefreshLayout.setResistance(1.7f);
-        swipeRefreshLayout.setRatioOfHeaderHeightToRefresh(1.2f);
-        swipeRefreshLayout.setDurationToClose(200);
-        swipeRefreshLayout.setDurationToCloseHeader(1000);
-        swipeRefreshLayout.setPullToRefresh(false);
-        swipeRefreshLayout.setKeepHeaderWhenRefresh(true);
-        refreshItems();
+        refreshItemsWithAnimation();
     }
 
-    private void refreshItems() {
-        LinearLayout refreshLayout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.progressbar_anim, swipeRefreshLayout, false);
+    private void refreshItemsWithAnimation() {
+        LinearLayout refreshLayout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.progressbar_anim, animationRefreshLayout, false);
         LottieAnimationView refreshAnimationView = refreshLayout.findViewById(R.id.custom_progress_bar_animation_view);
         refreshAnimationView.setAnimation(R.raw.recycler_loading);
         refreshAnimationView.setRepeatCount(LottieDrawable.INFINITE);
         refreshAnimationView.playAnimation();
-        swipeRefreshLayout.setHeaderView(refreshLayout);
-        swipeRefreshLayout.setPtrHandler(new PtrHandler() {
+        animationRefreshLayout.setHeaderView(refreshLayout);
+        animationRefreshLayout.setPtrHandler(new PtrHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-                return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+                int position = ((LinearLayoutManager)recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                if(position != 0){
+                    return false;
+                }else{
+                    return true;
+                }
+//                return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
             }
 
             @Override
@@ -151,14 +148,26 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         onItemsLoadComplete();
-                        swipeRefreshLayout.refreshComplete();
+                        animationRefreshLayout.refreshComplete();
                     }
                 }, refreshDelay);
             }
         });
-//        swipeRefreshLayout.setRefreshing(true);
-//        if(swipeRefreshLayout.isRefreshing()){
-//            swipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void onItemsLoadComplete() {
+        // Update the adapter and notify data set changed
+        mAdapter.notifyDataSetChanged();
+        recyclerView.scrollToPosition(0);
+//        recyclerView.setAdapter(mAdapter);
+        Toast.makeText(this, "Refresh complete", Toast.LENGTH_SHORT).show();
+//        animationRefreshLayout.setRefreshing(false);
+    }
+
+    private void refreshItems() {
+//        animationRefreshLayout.setRefreshing(true);
+//        if (animationRefreshLayout.isRefreshing()) {
+//            animationRefreshLayout.setRefreshing(false);
 //            refreshAnimationView.setVisibility(View.VISIBLE);
 //            refreshAnimationView.setRepeatCount(LottieDrawable.INFINITE);
 //            refreshAnimationView.playAnimation();
@@ -172,13 +181,5 @@ public class MainActivity extends AppCompatActivity {
 ////                recyclerView.getLayoutManager().scrollToPosition(1);
 //            }
 //        }, refreshDelay);
-    }
-
-    private void onItemsLoadComplete() {
-        // Update the adapter and notify data set changed
-        mAdapter.notifyDataSetChanged();
-//        recyclerView.setAdapter(mAdapter);
-        Toast.makeText(this, "Refresh complete", Toast.LENGTH_SHORT).show();
-//        swipeRefreshLayout.setRefreshing(false);
     }
 }
