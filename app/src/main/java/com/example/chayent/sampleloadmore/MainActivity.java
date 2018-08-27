@@ -19,7 +19,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrHandler;
 
@@ -126,17 +125,16 @@ public class MainActivity extends AppCompatActivity {
     private void refreshItemsWithAnimation() {
         LinearLayout refreshLayout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.progressbar_anim, animationRefreshLayout, false);
         LottieAnimationView refreshAnimationView = refreshLayout.findViewById(R.id.custom_progress_bar_animation_view);
-        refreshAnimationView.setAnimation(R.raw.recycler_loading);
-        refreshAnimationView.setRepeatCount(LottieDrawable.INFINITE);
-        refreshAnimationView.playAnimation();
+        refreshAnimationView.setAnimation(R.raw.recycler_loading3);
         animationRefreshLayout.setHeaderView(refreshLayout);
+        animationRefreshLayout.setPinContent(true);
         animationRefreshLayout.setPtrHandler(new PtrHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-                int position = ((LinearLayoutManager)recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-                if(position != 0){
+                int position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                if (position != 0) {
                     return false;
-                }else{
+                } else {
                     return true;
                 }
 //                return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
@@ -144,11 +142,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
+                refreshAnimationView.setRepeatCount(LottieDrawable.INFINITE);
+                refreshAnimationView.playAnimation();
                 frame.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         onItemsLoadComplete();
                         animationRefreshLayout.refreshComplete();
+                        refreshAnimationView.cancelAnimation();
                     }
                 }, refreshDelay);
             }
