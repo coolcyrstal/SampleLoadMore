@@ -25,13 +25,15 @@ public class DataAdapter extends RecyclerView.Adapter {
 
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROGRESS = 0;
+    private final int VIEW_REFRESH = -1;
 
     private List<Student> studentList;
 
     private int visibleThreshold = 3;
     private int lastVisibleItem, totalItemCount;
     private boolean loading;
-    private OnLoadMoreListener onLoadMoreListener;
+    private boolean isRefresh = false;
+    private OnLoadListener onLoadListener;
 
     @NonNull
     @Override
@@ -70,6 +72,27 @@ public class DataAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
+//        int viewType;
+//        if (studentList.get(position) != null) {
+//            switch (position) {
+//                case 0:
+//                    isRefresh = true;
+//                    viewType = VIEW_REFRESH;
+//                    break;
+//                case 1:
+//                    isRefresh = false;
+//                    viewType = VIEW_ITEM;
+//                    break;
+//                default:
+//                    isRefresh = false;
+//                    viewType = VIEW_ITEM;
+//                    break;
+//            }
+//        } else {
+//            isRefresh = false;
+//            viewType = VIEW_PROGRESS;
+//        }
+//        return viewType;
         return studentList.get(position) != null ? VIEW_ITEM : VIEW_PROGRESS;
     }
 
@@ -77,8 +100,8 @@ public class DataAdapter extends RecyclerView.Adapter {
         loading = false;
     }
 
-    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
-        this.onLoadMoreListener = onLoadMoreListener;
+    public void setOnLoadListener(OnLoadListener onLoadListener) {
+        this.onLoadListener = onLoadListener;
     }
 
     DataAdapter(List<Student> students, RecyclerView recyclerView) {
@@ -93,10 +116,15 @@ public class DataAdapter extends RecyclerView.Adapter {
                     totalItemCount = linearLayoutManager.getItemCount();
                     lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
                     if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                        if (onLoadMoreListener != null) {
-                            onLoadMoreListener.onLoadMore();
+                        if (onLoadListener != null) {
+                            onLoadListener.onLoadMore();
                         }
                         loading = true;
+                    }
+                    if(isRefresh){
+                        if(onLoadListener != null){
+                            onLoadListener.onRefresh();
+                        }
                     }
                 }
             });
